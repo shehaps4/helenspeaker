@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IraqiSpeakerConfiguration",
+  "description": "Unified Configuration Schema for Iraqi AI Smart Speaker OS & Control Center",
+  "type": "object",
+  "required": [
+    "configuration_version",
+    "speaker_id",
+    "character_name",
+    "dialect",
+    "voice_id",
+    "model_id",
+    "relationship_style",
+    "romance_level",
+    "playfulness_level",
+    "humor_level",
+    "warmth_level",
+    "boldness_level",
+    "rgb_enabled",
+    "rgb_mode",
+    "rgb_color",
+    "rgb_brightness",
+    "wake_word_settings",
+    "bluetooth_mode",
+    "checksum"
+  ],
+  "properties": {
+    "configuration_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "speaker_id": {
+      "type": "string"
+    },
+    "character_name": {
+      "type": "string",
+      "default": "هيلين"
+    },
+    "dialect": {
+      "type": "string",
+      "enum": ["baghdadi", "general_iq", "southern_iq", "simplified_ar"],
+      "default": "baghdadi"
+    },
+    "voice_id": {
+      "type": "string",
+      "default": "ar-IQ-RanaNeural"
+    },
+    "model_id": {
+      "type": "string",
+      "default": "gemini-3.8-live"
+    },
+    "relationship_style": {
+      "type": "string",
+      "enum": [
+        "romantic",
+        "playful_lover",
+        "flirty",
+        "close_friend",
+        "friend",
+        "familiar",
+        "new_companion"
+      ],
+      "default": "playful_lover"
+    },
+    "romance_level": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 75
+    },
+    "playfulness_level": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 85
+    },
+    "humor_level": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 80
+    },
+    "warmth_level": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 90
+    },
+    "boldness_level": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 65
+    },
+    "rgb_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "rgb_mode": {
+      "type": "string",
+      "enum": ["offline", "idle", "listening", "thinking", "speaking", "music", "error"],
+      "default": "idle"
+    },
+    "rgb_color": {
+      "type": "string",
+      "pattern": "^#([A-Fa-f0-9]{6})$",
+      "default": "#00DCFF"
+    },
+    "rgb_brightness": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255,
+      "default": 200
+    },
+    "music_preferences": {
+      "type": "object",
+      "properties": {
+        "favorite_genre": { "type": "string", "default": "Iraqi Classic" },
+        "default_volume": { "type": "integer", "minimum": 0, "maximum": 100, "default": 80 }
+      }
+    },
+    "wake_word_settings": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "wake_word": { "type": "string", "default": "يا هيلين" },
+        "sensitivity": { "type": "number", "minimum": 0.0, "maximum": 1.0, "default": 0.5 }
+      }
+    },
+    "bluetooth_mode": {
+      "type": "string",
+      "enum": ["AI_ASSISTANT", "A2DP_SPEAKER"],
+      "default": "AI_ASSISTANT"
+    },
+    "wifi_profile_reference": {
+      "type": "string",
+      "default": "stored_in_keystore"
+    },
+    "sync_status": {
+      "type": "string",
+      "enum": [
+        "SAVED_LOCAL_PHONE",
+        "PENDING_SYNC",
+        "SAVED_ON_SPEAKER",
+        "SYNC_FAILED",
+        "NOT_SUPPORTED"
+      ],
+      "default": "SAVED_LOCAL_PHONE"
+    },
+    "checksum": {
+      "type": "string"
+    }
+  }
+}

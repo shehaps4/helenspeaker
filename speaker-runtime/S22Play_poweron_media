@@ -1,0 +1,15 @@
+#!/bin/sh
+# Iraqi AI Smart Speaker OS - Power-on Hardware Setup
+
+case "$1" in
+  start)
+    echo "Initializing Iraqi AI Smart Speaker Hardware..."
+    amixer sset Master 26 >/dev/null 2>&1
+    echo 3 0 3 1 > /sys/class/leds/aw2015/led_time 2>/dev/null
+    echo "r 0 g 220 b 255" > /sys/class/leds/aw2015/color_blink 2>/dev/null
+    ;;
+  *)
+    ;;
+esac
+
+exit 0

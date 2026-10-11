@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">سماعتي</string>
+    <string name="tab_dashboard">الرئيسية</string>
+    <string name="tab_character">الشخصية</string>
+    <string name="tab_rgb">الإضاءة</string>
+    <string name="tab_music">الموسيقى</string>
+    <string name="tab_stories">القصص</string>
+    <string name="tab_discovery">الأجهزة</string>
+    <string name="tab_diagnostics">التشخيص</string>
+
+    <!-- Dashboard -->
+    <string name="speaker_name_default">سماعة هيلين الذكية (audio_84c8)</string>
+    <string name="status_connected">متصل بالسماعة</string>
+    <string name="status_disconnected">غير متصل</string>
+    <string name="btn_start_talk">تحدث الآن (مباشر)</string>
+    <string name="btn_stop_talk">إيقاف الاستماع</string>
+    <string name="btn_bt_mode">وضع سماعة بلوتوث</string>
+    <string name="lbl_battery">البطارية: متصل بالشاحن (100%)</string>
+    <string name="lbl_volume">مستوى الصوت</string>
+    <string name="lbl_active_model">النموذج النشط: Gemini 3.8 Live</string>
+
+    <!-- Character Studio -->
+    <string name="char_name_label">اسم المساعد الصوتي</string>
+    <string name="char_dialect_label">نمط اللهجة العراقية</string>
+    <string name="char_relationship_label">أسلوب العلاقة والخطاب</string>
+    <string name="slider_romance">الرومانسية والمودة</string>
+    <string name="slider_banter">المشاكسة والمزاح العراقي</string>
+    <string name="slider_humor">خفة الدم والفكاهة</string>
+    <string name="slider_warmth">الدفء والاحتواء</string>
+    <string name="slider_boldness">الجرأة في التعبير</string>
+    <string name="btn_save_sync">حفظ ومزامنة مع السماعة</string>
+    <string name="btn_preview_voice">معاينة الصوت العراقي</string>
+
+    <!-- RGB Studio -->
+    <string name="rgb_enable_switch">تفعيل إضاءة RGB</string>
+    <string name="rgb_brightness_label">شدة السطوع</string>
+    <string name="rgb_mode_label">نمط الإضاءة التفاعلية</string>
+    <string name="rgb_color_label">اللون المفضل</string>
+
+    <!-- Music & Stories -->
+    <string name="music_title">مركز الصوت والموسيقى العراقية</string>
+    <string name="btn_play_classic">تشغيل أغنية (حلو حبك - هيثم يوسف)</string>
+    <string name="story_mode_title">حكايات وقصص عراقية وتراثية</string>
+    <string name="story_start_btn">ابدأ قصة جديدة</string>
+    <string name="story_continue_btn">كمّل القصة</string>
+
+    <!-- Diagnostics -->
+    <string name="diag_title">فحص العتاد وتشخيص النظام</string>
+    <string name="diag_hardware">اللوحة: audio_ihuisen_shanyuan_V2_0 (Ingenic X1800 MIPS)</string>
+    <string name="diag_kernel">النواة: Embedded Linux 3.10.14 PREEMPT</string>
+    <string name="diag_mic">الميكروفون: مصفوفة ثنائية DMIC عبر /dev/mic</string>
+    <string name="diag_rgb">وحدة الإضاءة: AW2015 I2C RGB Driver</string>
+</resources>

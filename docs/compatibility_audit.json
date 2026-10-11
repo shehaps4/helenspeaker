@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-10-10T21:17:11.021245",
+  "scanner_version": "1.0.0",
+  "detected_devices": [
+    {
+      "interface": "USB_ADB",
+      "serial": "audio_84c8",
+      "classification": "Embedded Linux Smart Speaker (Full Root Access)",
+      "os": "Embedded Linux",
+      "soc": "Ingenic XBurst MIPS (X1800/X1830/X1000)",
+      "kernel": "Linux audio 3.10.14-g2c134e6-dirty #1 PREEMPT Mon Sep 23 11:36:44 CST 2019 mips GNU/Linux",
+      "mac_address": "70:4f:08:00:84:c8",
+      "memory": "MemTotal:          55264 kB, , MemFree:            1176 kB, , Buffers:               0 kB",
+      "audio_subsystem": {
+        "sound_cards": "0 [internalcodec  ]: internal codec pinternal codec pcm - internal codec pcm\n\n                      internal codec pcm 0",
+        "has_hardware_mic": true,
+        "has_dedicated_mic_driver": true
+      },
+      "rgb_subsystem": {
+        "supported": true,
+        "driver_node": "/sys/class/leds/aw2015"
+      },
+      "compatibility_tier": "Tier 1 - Full Native Root & Hardware Control",
+      "recommended_deployment": "Native Daemon Mode (Recommended - Zero Risk)",
+      "flashing_verdict": "DO NOT FLASH: Device is fully unlocked via ADB root; NAND flashing is unnecessary and high risk."
+    }
+  ]
+}

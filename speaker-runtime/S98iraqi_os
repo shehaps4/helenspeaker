@@ -1,0 +1,22 @@
+#!/bin/sh
+# Iraqi AI Smart Speaker OS - Startup Init Script
+
+case "$1" in
+  start)
+    echo "Starting Iraqi AI Smart Speaker OS..."
+    killall -9 AudioMain storybook_daemon key_test iraqi_button_watcher.sh 2>/dev/null
+    /usr/data/iraqi_os/iraqi_daemon.sh
+    ;;
+  stop)
+    killall -9 key_test iraqi_button_watcher.sh inetd 2>/dev/null
+    ;;
+  restart)
+    killall -9 key_test iraqi_button_watcher.sh inetd 2>/dev/null
+    /usr/data/iraqi_os/iraqi_daemon.sh
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit 0

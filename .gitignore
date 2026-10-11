@@ -1,0 +1,33 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Android build outputs
+android-app/**/build/
+android-app/.gradle/
+.gradle/
+
+# Temporary audio test and recording chunks
+probe_chunk.wav
+continuation_chunk.wav
+recorded_input.wav
+gemini_live_reply.wav
+gemini_live_convo.wav
+edge_reply_temp.mp3
+test_*.wav
+test_*.mp3
+sample_*.mp3
+rana_iq_test.mp3
+greeting_iq.mp3
+iraqi_boot_greeting.mp3
+temp_fallback.mp3
+test_*.m4a
+online_stream_song.*
+
+# Temporary terminal logs
+*.log
+out.txt
+adb_out.txt
+adb_err.txt
+out_res.json

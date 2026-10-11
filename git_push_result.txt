@@ -1,0 +1,24 @@
+﻿git : The directory name is invalid.
+At line:1 char:1
++ git push origin main 2>&1 | Out-File -FilePath git_push_result.txt -E ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (The directory name is invalid.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+warning: invalid credential line: c:\progra~1\common~1\system\symsrv.dll.000
+Access is denied.
+The directory name is invalid.
+The process tried to write to a nonexistent pipe.
+Access is denied.
+The directory name is invalid.
+The process tried to write to a nonexistent pipe.
+Access is denied.
+The directory name is invalid.
+The process tried to write to a nonexistent pipe.
+Access is denied.
+The process tried to write to a nonexistent pipe.
+Access is denied.
+The directory name is invalid.
+The directory name is invalid.
+The process tried to write to a nonexistent pipe.
+Access is denied.
