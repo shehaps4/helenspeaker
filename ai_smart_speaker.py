@@ -537,7 +537,38 @@ def synthesize_gemini_live_speech(reply_text, config, out_wav="gemini_live_reply
                     wf.writeframes(raw)
                 return out_wav
         except Exception as e:
-            time.sleep(0.2)
+            time.sleep(0.1)
+
+    # Human Iraqi Neural Voice Fallback (Ensures Helen is ALWAYS heard out loud!)
+    try:
+        import asyncio
+        import edge_tts
+        gender = config.get("voice_gender", "female")
+        voice_map = {
+            "Aoede": "ar-IQ-RanaNeural",
+            "Kore": "ar-IQ-RanaNeural",
+            "Leda": "ar-IQ-RanaNeural",
+            "Puck": "ar-IQ-BasselNeural",
+            "Fenrir": "ar-IQ-BasselNeural",
+            "Charon": "ar-IQ-BasselNeural"
+        }
+        human_voice = voice_map.get(voice, "ar-IQ-RanaNeural" if gender == "female" else "ar-IQ-BasselNeural")
+        temp_mp3 = "neural_reply_temp.mp3"
+        async def _speak():
+            comm = edge_tts.Communicate(reply_text, human_voice, rate="+0%", pitch="+1Hz")
+            await comm.save(temp_mp3)
+        asyncio.run(_speak())
+        if os.path.exists(temp_mp3) and os.path.getsize(temp_mp3) > 100:
+            data, sr = sf.read(temp_mp3)
+            if len(data.shape) > 1: data = data[:, 0]
+            peak = np.max(np.abs(data))
+            if peak > 0: data = data / peak * 0.95
+            sf.write(out_wav, data, sr, subtype="PCM_16")
+            try: os.remove(temp_mp3)
+            except Exception: pass
+            return out_wav
+    except Exception as e:
+        print(f"[-] Neural voice fallback error: {e}")
 
     return None
 
