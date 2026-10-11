@@ -42,16 +42,15 @@ if hasattr(sys.stderr, 'reconfigure'):
 # ADB Path Resolution & Robust Execution
 # ----------------------------------------------------------------------
 def find_adb_binary():
+    winget_adb = r"C:\Users\Th3painter\AppData\Local\Microsoft\WinGet\Packages\Google.PlatformTools_Microsoft.Winget.Source_8wekyb3d8bbwe\platform-tools\adb.exe"
+    if os.path.exists(winget_adb):
+        return winget_adb
     sdk_adb = os.path.expandvars(r"%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe")
     if os.path.exists(sdk_adb):
         return sdk_adb
-    candidates = [
-        shutil.which("adb"),
-        r"C:\Users\Th3painter\AppData\Local\Microsoft\WinGet\Packages\Google.PlatformTools_Microsoft.Winget.Source_8wekyb3d8bbwe\platform-tools\adb.exe"
-    ]
-    for c in candidates:
-        if c and os.path.exists(c):
-            return c
+    which_adb = shutil.which("adb")
+    if which_adb:
+        return which_adb
     return "adb"
 
 ADB_PATH = find_adb_binary()
