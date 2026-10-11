@@ -29,5 +29,8 @@ online_stream_song.*
 *.log
 out.txt
 adb_out.txt
-adb_err.txt
 out_res.json
+
+# Local configurations with sensitive keys
+local_config.json
+.env

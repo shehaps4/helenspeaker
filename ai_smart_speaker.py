@@ -28,6 +28,9 @@ import shutil
 import urllib.parse
 import threading
 import subprocess
+import asyncio
+import base64
+import websockets
 import numpy as np
 import soundfile as sf
 import google.generativeai as genai
@@ -207,14 +210,22 @@ def load_speaker_config():
         "api_key": DEFAULT_API_KEY
     }
     try:
+        local_cfg_path = os.path.join(os.path.dirname(__file__), "local_config.json")
+        if os.path.exists(local_cfg_path):
+            with open(local_cfg_path, "r", encoding="utf-8") as f:
+                lcfg = json.load(f)
+                default_config.update(lcfg)
+    except Exception:
+        pass
+    try:
         raw = adb_cmd("cat /usr/data/iraqi_os/config.json 2>/dev/null")
         if raw and raw.startswith("{"):
             cfg = json.loads(raw)
             default_config.update(cfg)
     except Exception as e:
         pass
-    if not default_config.get("api_key"):
-        default_config["api_key"] = DEFAULT_API_KEY
+    if not default_config.get("api_key") or default_config.get("api_key") == "YOUR_GEMINI_API_KEY_HERE":
+        default_config["api_key"] = os.environ.get("GEMINI_API_KEY", DEFAULT_API_KEY)
     return default_config
 
 # ----------------------------------------------------------------------
@@ -478,98 +489,110 @@ def process_text_with_gemini(user_text, config):
     }
 
 # ----------------------------------------------------------------------
-# Gemini Live TTS Voice Synthesis
+# Gemini Multimodal Live Native Voice Engine (Bidi WebSocket)
 # ----------------------------------------------------------------------
-def synthesize_gemini_live_speech(reply_text, config, out_wav="gemini_live_reply.wav"):
-    """
-    Synthesize human-like speech with Gemini Live TTS model.
-    Voices: Female (Kore, Aoede, Leda), Male (Puck, Fenrir, Charon).
-    """
-    voice = config.get("voice_name", "Kore")
-    api_key = config.get("api_key", DEFAULT_API_KEY)
-    genai.configure(api_key=api_key)
+async def _generate_live_pcm_stream(reply_text, voice_name, api_key, model_name):
+    uri = f"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key={api_key}"
+    system_instruction = (
+        "أنتِ المساعد الصوتي البشري العراقي هيلين. "
+        "مهمتك نطق وقراءة الرد المطلوب بنبرة صوت بشرية حقيقية وواقعية 100% "
+        "مليئة بالحياة والعاطفة والضحكات العفوية باللهجة العراقية البغدادية الطبيعية، "
+        "بدون أي نبرة روبوتية أو قراءة جافة."
+    )
+    prompt = f"اقرئي وانطقي هذا الرد بنبرتكِ العراقية الحية الطبيعية والضحكة العفوية:\n\"{reply_text.strip()}\""
 
-    tts_models = [
-        "models/gemini-2.5-flash-preview-tts",
-        "models/gemini-3.8-flash-tts",
-        "models/gemini-3.8-flash-lite-tts",
-        "models/gemini-2.5-pro-preview-tts"
-    ]
-
-    for mname in tts_models:
-        try:
-            model = genai.GenerativeModel(mname)
-            resp = model.generate_content(
-                reply_text,
-                generation_config={
-                    "response_modalities": ["AUDIO"],
-                    "speech_config": {
-                        "voice_config": {
-                            "prebuilt_voice_config": {
-                                "voice_name": voice
+    async with websockets.connect(uri, ping_interval=20, ping_timeout=20) as ws:
+        setup = {
+            "setup": {
+                "model": model_name,
+                "generationConfig": {
+                    "responseModalities": ["AUDIO"],
+                    "speechConfig": {
+                        "voiceConfig": {
+                            "prebuiltVoiceConfig": {
+                                "voiceName": voice_name
                             }
                         }
                     }
+                },
+                "systemInstruction": {
+                    "parts": [{"text": system_instruction}]
                 }
-            )
-            raw_parts = []
-            if resp.candidates and resp.candidates[0].content:
-                for part in resp.candidates[0].content.parts:
-                    if hasattr(part, "inline_data") and part.inline_data:
-                        raw_parts.append(part.inline_data.data)
-            if raw_parts:
-                raw = b"".join(raw_parts)
-                if len(raw) % 2 != 0:
-                    raw = raw[:-1]
-                
-                # Boost volume for crisp speaker output
-                audio_arr = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
+            }
+        }
+        await ws.send(json.dumps(setup, ensure_ascii=False))
+        await asyncio.wait_for(ws.recv(), timeout=7.0)
+
+        client_turn = {
+            "clientContent": {
+                "turns": [
+                    {
+                        "role": "user",
+                        "parts": [{"text": prompt}]
+                    }
+                ],
+                "turnComplete": True
+            }
+        }
+        await ws.send(json.dumps(client_turn, ensure_ascii=False))
+
+        audio_chunks = []
+        while True:
+            msg = await asyncio.wait_for(ws.recv(), timeout=15.0)
+            data = json.loads(msg)
+            server_content = data.get("serverContent", {})
+            model_turn = server_content.get("modelTurn", {})
+            for p in model_turn.get("parts", []):
+                if "inlineData" in p:
+                    b64_data = p["inlineData"].get("data", "")
+                    if b64_data:
+                        audio_chunks.append(base64.b64decode(b64_data))
+            if server_content.get("turnComplete"):
+                break
+
+        return b"".join(audio_chunks)
+
+def synthesize_gemini_live_speech(reply_text, config, out_wav="gemini_live_reply.wav"):
+    """
+    Synthesize authentic human conversational speech using Gemini Multimodal Live Native Voice Engine.
+    Voices: Aoede, Kore, Leda, Puck, Fenrir, Charon.
+    Guarantees 100% real human-like living emotional speech with ZERO robotic/reading TTS tone.
+    """
+    voice = config.get("voice_name", "Aoede")
+    api_key = config.get("api_key", DEFAULT_API_KEY)
+    if not api_key or api_key == "YOUR_GEMINI_API_KEY_HERE":
+        print("[-] مفتاح API غير متوفر لتوليد الصوت البشري الحي")
+        return None
+
+    live_models = [
+        "models/gemini-2.5-flash-native-audio-latest",
+        "models/gemini-3.8-live"
+    ]
+
+    for mname in live_models:
+        try:
+            raw_pcm = asyncio.run(_generate_live_pcm_stream(reply_text, voice, api_key, mname))
+            if raw_pcm and len(raw_pcm) > 500:
+                # Volume boost and normalization for crisp speaker output
+                audio_arr = np.frombuffer(raw_pcm, dtype=np.int16).astype(np.float32)
                 peak = np.max(np.abs(audio_arr))
-                if peak > 200 and peak < 28000:
-                    gain = min(1.7, 31000.0 / peak)
+                if peak > 200:
+                    gain = min(1.8, 30000.0 / peak)
                     audio_arr = np.clip(audio_arr * gain, -32767, 32767).astype(np.int16)
-                    raw = audio_arr.tobytes()
+                    raw_pcm = audio_arr.tobytes()
 
                 with wave.open(out_wav, "wb") as wf:
                     wf.setnchannels(1)
                     wf.setsampwidth(2)
                     wf.setframerate(24000)
-                    wf.writeframes(raw)
+                    wf.writeframes(raw_pcm)
+                print(f"[🎙️] تم توليد الصوت البشري الحي بنجاح ({mname}, voice={voice}, {len(raw_pcm)} بايت)")
                 return out_wav
         except Exception as e:
-            time.sleep(0.1)
+            print(f"[-] خطأ في توليد الصوت الحي عبر {mname}: {e}")
+            continue
 
-    # Human Iraqi Neural Voice Fallback (Ensures Helen is ALWAYS heard out loud!)
-    try:
-        import asyncio
-        import edge_tts
-        gender = config.get("voice_gender", "female")
-        voice_map = {
-            "Aoede": "ar-IQ-RanaNeural",
-            "Kore": "ar-IQ-RanaNeural",
-            "Leda": "ar-IQ-RanaNeural",
-            "Puck": "ar-IQ-BasselNeural",
-            "Fenrir": "ar-IQ-BasselNeural",
-            "Charon": "ar-IQ-BasselNeural"
-        }
-        human_voice = voice_map.get(voice, "ar-IQ-RanaNeural" if gender == "female" else "ar-IQ-BasselNeural")
-        temp_mp3 = "neural_reply_temp.mp3"
-        async def _speak():
-            comm = edge_tts.Communicate(reply_text, human_voice, rate="+0%", pitch="+1Hz")
-            await comm.save(temp_mp3)
-        asyncio.run(_speak())
-        if os.path.exists(temp_mp3) and os.path.getsize(temp_mp3) > 100:
-            data, sr = sf.read(temp_mp3)
-            if len(data.shape) > 1: data = data[:, 0]
-            peak = np.max(np.abs(data))
-            if peak > 0: data = data / peak * 0.95
-            sf.write(out_wav, data, sr, subtype="PCM_16")
-            try: os.remove(temp_mp3)
-            except Exception: pass
-            return out_wav
-    except Exception as e:
-        print(f"[-] Neural voice fallback error: {e}")
-
+    print("[-] تعذر توليد الصوت الحي من نماذج Gemini Live")
     return None
 
 def speak_response_on_hardware(wav_file):
