@@ -570,12 +570,14 @@ def search_and_play_online_song(query):
             except Exception: pass
 
     ydl_opts = {
-        'format': 'bestaudio[ext=m4a]/bestaudio/best[ext=mp3]/bestaudio',
+        'format': 'bestaudio[ext=m4a]/bestaudio/best[ext=mp3]/bestaudio/best',
         'outtmpl': f'{temp_prefix}.%(ext)s',
         'noplaylist': True,
         'quiet': True,
         'no_warnings': True,
         'socket_timeout': 10,
+        'nocheckcertificate': True,
+        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
     }
 
     song_path = None
